@@ -23,13 +23,13 @@ void key_init(void){
 
 bool PROG_MODE=false;
 
-int	time_index=0;//设定时间索引
+u8	time_index=0;//设定时间索引
 //0              1 2 3-----10
 //current_time   user_time[0]----user_time[9]
 //1              2 3 4 ----11
 
 TIME_TYPE time_buf={0,0,0};//按键输入时间信息缓存
-u8 state_buf=0;//按键输入通断信息缓存
+bool state_buf=false;//按键输入通断信息缓存
 
 //KEY_CHOS 0   1   2   3   4
 //          min     hour   state
@@ -38,7 +38,7 @@ u8 chos_count=0;
 
 //KEY_MODE
 void MODE_Handler(void) interrupt 0 {
-   delay(20);//消抖
+   while(KEY_MODE==0);
 	if (PROG_MODE==true)
 	{
 		if (time_index==0)
@@ -50,7 +50,6 @@ void MODE_Handler(void) interrupt 0 {
 			(user_time+time_index-1)->state=state_buf;
 		}
 		time_index++;//次数太多造成数组越界！！！！
-		
 		//设定完成后缓存  显示清零
 		num1[0]=0;	
 	  num1[1]=0;
@@ -63,7 +62,7 @@ void MODE_Handler(void) interrupt 0 {
 		
 		time_buf.min=0;
 		time_buf.hour=0;
-		state_buf=0;
+		state_buf=false;
 	}
 	PROG_MODE=!PROG_MODE;
 	
@@ -72,7 +71,7 @@ void MODE_Handler(void) interrupt 0 {
 
 
 void CHOS_Handler(void) interrupt 2 {
-	delay(20);//消抖
+	while(KEY_CHOS==0);//消抖
 	if (PROG_MODE==true)
 	{
 		chos_count++;
@@ -85,7 +84,7 @@ void CHOS_Handler(void) interrupt 2 {
 
 //KEY_STEP
 void STEP_Handler(void) interrupt 6 {
-	delay(20);//消抖
+	while(KEY_STEP==0);//消抖
 	//num1[4]={time_buf.min%10,time_buf.min/10,time_buf.hour%10,time_buf.hour/10};
 	
 	if (PROG_MODE==true)

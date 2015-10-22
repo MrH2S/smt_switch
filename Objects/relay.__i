@@ -1,0 +1,1 @@
+"src\relay.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(.\inc) DEBUG OBJECTEXTEND PRINT(.\Listings\relay.lst) TABS (2) OBJECT(.\Objects\relay.obj)

@@ -64,21 +64,16 @@ void timer_handler(void) interrupt 1 {
 	num2[3]=current_time.hour/10;
 	
   //时间检测
-	for (i=0;i < time_index-1;++i)
-	{
-		if (current_time.min==((user_time+i)->time).min&&
-			  current_time.hour==((user_time+i)->time).hour)
-		{
-			
+	for (i=0;i < time_index-1;++i){  
+		if(current_time.min==((user_time+i)->time).min&&
+		   current_time.hour==((user_time+i)->time).hour){
 			if ((user_time+i)->state)
 			{
 			    relay_on();
-				  LED2=0;
 			}else{
 				  relay_off();
-				  LED2=1;
 			}
-		}
+	  }
 	}
 }
 

@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   KEYS                                                                  10/18/2015 14:59:13 PAGE 1   
+C51 COMPILER V9.54   KEYS                                                                  10/21/2015 16:25:11 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE KEYS
@@ -33,13 +33,13 @@ line level    source
   23          
   24          bool PROG_MODE=false;
   25          
-  26          int time_index=0;//设定时间索引
+  26          u8  time_index=0;//设定时间索引
   27          //0              1 2 3-----10
   28          //current_time   user_time[0]----user_time[9]
   29          //1              2 3 4 ----11
   30          
   31          TIME_TYPE time_buf={0,0,0};//按键输入时间信息缓存
-  32          u8 state_buf=0;//按键输入通断信息缓存
+  32          bool state_buf=false;//按键输入通断信息缓存
   33          
   34          //KEY_CHOS 0   1   2   3   4
   35          //          min     hour   state
@@ -48,7 +48,7 @@ line level    source
   38          
   39          //KEY_MODE
   40          void MODE_Handler(void) interrupt 0 {
-  41   1         delay(20);//消抖
+  41   1         while(KEY_MODE==0);
   42   1        if (PROG_MODE==true)
   43   1        {
   44   2          if (time_index==0)
@@ -60,108 +60,107 @@ line level    source
   50   3            (user_time+time_index-1)->state=state_buf;
   51   3          }
   52   2          time_index++;//次数太多造成数组越界！！！！
-  53   2          
-  54   2          //设定完成后缓存  显示清零
-C51 COMPILER V9.54   KEYS                                                                  10/18/2015 14:59:13 PAGE 2   
+  53   2          //设定完成后缓存  显示清零
+  54   2          num1[0]=0;  
+C51 COMPILER V9.54   KEYS                                                                  10/21/2015 16:25:11 PAGE 2   
 
-  55   2          num1[0]=0;  
-  56   2          num1[1]=0;
-  57   2          num1[2]=0;
-  58   2          num1[3]=0;
-  59   2          
-  60   2          LED9=1;
-  61   2          
-  62   2          chos_count=0;
-  63   2          
-  64   2          time_buf.min=0;
-  65   2          time_buf.hour=0;
-  66   2          state_buf=0;
-  67   2        }
-  68   1        PROG_MODE=!PROG_MODE;
-  69   1        
-  70   1      }
+  55   2          num1[1]=0;
+  56   2          num1[2]=0;
+  57   2          num1[3]=0;
+  58   2          
+  59   2          LED9=1;
+  60   2          
+  61   2          chos_count=0;
+  62   2          
+  63   2          time_buf.min=0;
+  64   2          time_buf.hour=0;
+  65   2          state_buf=false;
+  66   2        }
+  67   1        PROG_MODE=!PROG_MODE;
+  68   1        
+  69   1      }
+  70          
   71          
   72          
-  73          
-  74          void CHOS_Handler(void) interrupt 2 {
-  75   1        delay(20);//消抖
-  76   1        if (PROG_MODE==true)
-  77   1        {
-  78   2          chos_count++;
-  79   2          if (chos_count>=5)
-  80   2          {
-  81   3            chos_count=0;
-  82   3          }
-  83   2        }
-  84   1      }
-  85          
-  86          //KEY_STEP
-  87          void STEP_Handler(void) interrupt 6 {
-  88   1        delay(20);//消抖
-  89   1        //num1[4]={time_buf.min%10,time_buf.min/10,time_buf.hour%10,time_buf.hour/10};
-  90   1        
-  91   1        if (PROG_MODE==true)
-  92   1        {
-  93   2          switch(chos_count){
-  94   3            case 0:
-  95   3              time_buf.min++;
-  96   3              if (time_buf.min>=60)
-  97   3              {
-  98   4                time_buf.min=0;
-  99   4                time_buf.hour++;
- 100   4              }
- 101   3            break;
- 102   3            case 1:
- 103   3              time_buf.min=time_buf.min+10;
- 104   3              if (time_buf.min>=60)
- 105   3              {
- 106   4                time_buf.min=0;
- 107   4                time_buf.hour++;
- 108   4              }
- 109   3            break;
- 110   3            case 2:
- 111   3              time_buf.hour++;
- 112   3              if (time_buf.hour>=24)
- 113   3              {
- 114   4                time_buf.hour=0;
- 115   4              }
- 116   3            break;
-C51 COMPILER V9.54   KEYS                                                                  10/18/2015 14:59:13 PAGE 3   
+  73          void CHOS_Handler(void) interrupt 2 {
+  74   1        while(KEY_CHOS==0);//消抖
+  75   1        if (PROG_MODE==true)
+  76   1        {
+  77   2          chos_count++;
+  78   2          if (chos_count>=5)
+  79   2          {
+  80   3            chos_count=0;
+  81   3          }
+  82   2        }
+  83   1      }
+  84          
+  85          //KEY_STEP
+  86          void STEP_Handler(void) interrupt 6 {
+  87   1        while(KEY_STEP==0);//消抖
+  88   1        //num1[4]={time_buf.min%10,time_buf.min/10,time_buf.hour%10,time_buf.hour/10};
+  89   1        
+  90   1        if (PROG_MODE==true)
+  91   1        {
+  92   2          switch(chos_count){
+  93   3            case 0:
+  94   3              time_buf.min++;
+  95   3              if (time_buf.min>=60)
+  96   3              {
+  97   4                time_buf.min=0;
+  98   4                time_buf.hour++;
+  99   4              }
+ 100   3            break;
+ 101   3            case 1:
+ 102   3              time_buf.min=time_buf.min+10;
+ 103   3              if (time_buf.min>=60)
+ 104   3              {
+ 105   4                time_buf.min=0;
+ 106   4                time_buf.hour++;
+ 107   4              }
+ 108   3            break;
+ 109   3            case 2:
+ 110   3              time_buf.hour++;
+ 111   3              if (time_buf.hour>=24)
+ 112   3              {
+ 113   4                time_buf.hour=0;
+ 114   4              }
+ 115   3            break;
+ 116   3            case 3:
+C51 COMPILER V9.54   KEYS                                                                  10/21/2015 16:25:11 PAGE 3   
 
- 117   3            case 3:
- 118   3              time_buf.hour=time_buf.hour+10;
- 119   3              if (time_buf.hour>=24)
- 120   3              {
- 121   4                time_buf.hour=0;
- 122   4              }
- 123   3            break;
- 124   3            case 4:
- 125   3              if(time_index>=1){
- 126   4                state_buf=!state_buf;
- 127   4                if (state_buf)
- 128   4                {
- 129   5                  LED9=0;//亮--通
- 130   5                }else{
- 131   5                  LED9=1;//灭--断
- 132   5                }
- 133   4              }
- 134   3            break;
- 135   3          }
- 136   2          num1[0]=time_buf.min%10;
- 137   2          num1[1]=time_buf.min/10;
- 138   2          num1[2]=time_buf.hour%10;
- 139   2          num1[3]=time_buf.hour/10;
- 140   2        }
- 141   1        
- 142   1      }
+ 117   3              time_buf.hour=time_buf.hour+10;
+ 118   3              if (time_buf.hour>=24)
+ 119   3              {
+ 120   4                time_buf.hour=0;
+ 121   4              }
+ 122   3            break;
+ 123   3            case 4:
+ 124   3              if(time_index>=1){
+ 125   4                state_buf=!state_buf;
+ 126   4                if (state_buf)
+ 127   4                {
+ 128   5                  LED9=0;//亮--通
+ 129   5                }else{
+ 130   5                  LED9=1;//灭--断
+ 131   5                }
+ 132   4              }
+ 133   3            break;
+ 134   3          }
+ 135   2          num1[0]=time_buf.min%10;
+ 136   2          num1[1]=time_buf.min/10;
+ 137   2          num1[2]=time_buf.hour%10;
+ 138   2          num1[3]=time_buf.hour/10;
+ 139   2        }
+ 140   1        
+ 141   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    486    ----
+   CODE SIZE        =    377    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =      8    ----
+   DATA SIZE        =      7    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

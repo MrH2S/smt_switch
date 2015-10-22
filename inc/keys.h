@@ -15,7 +15,7 @@ sbit PX2 = XICON^3;
 sbit EX2 = XICON^2;
 sbit IE2 = XICON^1;
 sbit IT2 = XICON^0;
-
+/*按键类型 和  io口映射*/
 typedef enum {MODE,CHOS,STEP} KEY_TYPE;
 
 /*-------------------port def-------------------*/

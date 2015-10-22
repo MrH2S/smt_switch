@@ -7,6 +7,7 @@
 #define _TIME_H_
 
 #include <type.h>
+/*时间数据结构   全局变量定义*/
 
 typedef struct
 {
