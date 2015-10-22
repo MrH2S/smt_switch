@@ -1,0 +1,1 @@
+"src\monitor.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(.\inc) DEBUG OBJECTEXTEND PRINT(.\Listings\monitor.lst) TABS (2) OBJECT(.\Objects\monitor.obj)

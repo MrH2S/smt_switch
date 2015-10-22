@@ -1,0 +1,110 @@
+C51 COMPILER V9.54   TIME                                                                  10/18/2015 15:01:57 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE TIME
+OBJECT MODULE PLACED IN .\Objects\time.obj
+COMPILER INVOKED BY: D:\app\dev_tools\keilC51\C51\BIN\C51.EXE src\time.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\inc) DEBUG OB
+                    -JECTEXTEND PRINT(.\Listings\time.lst) TABS(2) OBJECT(.\Objects\time.obj)
+
+line level    source
+
+   1          #include <time.h>
+   2          #include <reg52.h>
+   3          #include <keys.h>
+   4          #include <relay.h>
+   5          #include <monitor.h>
+   6          #include <type.h>
+   7          void timer_init(void){
+   8   1         //16计数模式 timer 0
+   9   1        //8无中断信号！！！
+  10   1        TMOD=0X01;
+  11   1        TH0=0X3C;
+  12   1        TL0=0XAF;
+  13   1        ET0=1;
+  14   1      }
+  15          
+  16          //开始计数
+  17          void timer_start(void){
+  18   1      
+  19   1        TR0=1;
+  20   1      }
+  21          
+  22          //停止计数
+  23          void timer_stop(void){
+  24   1      
+  25   1        TR0=0;
+  26   1      }
+  27          
+  28          u8 timer_overflow_count=0;
+  29          extern u8 time_index;
+  30          TIME_TYPE current_time={0,0,0};
+  31          USER_TIME_TYPE user_time[10];
+  32          
+  33          u8 i=0;//中断服务函数  访问全局变量  不能定义局部变量
+  34          void timer_handler(void) interrupt 1 {
+  35   1        TH0=0X3C;
+  36   1        TL0=0XAF;
+  37   1      
+  38   1        //当前时间更新
+  39   1        timer_overflow_count++;
+  40   1        if (timer_overflow_count>=20)
+  41   1        {
+  42   2          timer_overflow_count=0;
+  43   2          current_time.sec++;
+  44   2          if (current_time.sec>=60)
+  45   2          {
+  46   3            current_time.sec=0;
+  47   3            current_time.min++;
+  48   3            if (current_time.min>=60)
+  49   3            {
+  50   4              current_time.min=0;
+  51   4              current_time.hour++;
+  52   4              if (current_time.hour>=24)
+  53   4              {
+  54   5                current_time.hour=0;
+C51 COMPILER V9.54   TIME                                                                  10/18/2015 15:01:57 PAGE 2   
+
+  55   5              }
+  56   4            }
+  57   3          }
+  58   2        }
+  59   1        
+  60   1        //num显示更新
+  61   1        num2[0]=current_time.min%10;
+  62   1        num2[1]=current_time.min/10;
+  63   1        num2[2]=current_time.hour%10;
+  64   1        num2[3]=current_time.hour/10;
+  65   1        
+  66   1        //时间检测
+  67   1        for (i=0;i < time_index-1;++i)
+  68   1        {
+  69   2          if (current_time.min==((user_time+i)->time).min&&
+  70   2              current_time.hour==((user_time+i)->time).hour)
+  71   2          {
+  72   3            
+  73   3            if ((user_time+i)->state)
+  74   3            {
+  75   4                relay_on();
+  76   4                LED2=0;
+  77   4            }else{
+  78   4                relay_off();
+  79   4                LED2=1;
+  80   4            }
+  81   3          }
+  82   2        }
+  83   1      }
+  84          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    227    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     45    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

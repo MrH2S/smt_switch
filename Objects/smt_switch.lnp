@@ -1,0 +1,8 @@
+".\Objects\STARTUP.obj",
+".\Objects\keys.obj",
+".\Objects\main.obj",
+".\Objects\monitor.obj",
+".\Objects\relay.obj",
+".\Objects\time.obj" 
+TO ".\Objects\smt_switch" 
+PRINT(".\Listings\smt_switch.m51") RAMSIZE(256) 
